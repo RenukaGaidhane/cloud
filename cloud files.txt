@@ -1,0 +1,280 @@
+Git command
+...............................
+1)git init
+2)nano index.html
+3)git add -A
+4)git commit -m "index.html added"
+5)git remot add origin ....git link....
+6)git push -u origin main 
+
+
+
+
+..............................................
+Create a container using ubuntu image. Install python in it. Save the
+container as a image. Delete earlier container. Create a new container and
+run python in it
+
+docker run -it --name ubuntu-python-container ubuntu
+apt-get update
+apt-get install -y python3
+python3 --version
+exit
+docker commit ubuntu-python-container my-python-image
+
+docker rm ubuntu-python-container
+
+docker run -it --name new-python-container my-python-image python3
+
+................................................................
+
+
+docker-compose.yml >>>>>>>>file
+Create a docker compose file to start 4 containers using httpd image. Map ports 5000, 6000, 7000 and 8000. Port 8000 website should display “Welcome to ACTS”. Port 5000 should display “Welcome to HPCSA”. Port 6000 should display “Welcome to DITISS” and port 7000 should display “Welcome to DAI”. Use docker-compose command.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+project_folder/
+├── docker-compose.yml
+├── html/
+│   ├── index_5000.html
+│   ├── index_6000.html
+│   ├── index_7000.html
+│   └── index_8000.html
+
+version: '3'
+services:
+  web_5000:
+    image: httpd
+    container_name: web_5000
+    ports:
+      - "5000:80"
+    volumes:
+      - ./html/index_5000.html:/usr/local/apache2/htdocs/index.html
+
+  web_6000:
+    image: httpd
+    container_name: web_6000
+    ports:
+      - "6000:80"
+    volumes:
+      - ./html/index_6000.html:/usr/local/apache2/htdocs/index.html
+
+  web_7000:
+    image: httpd
+    container_name: web_7000
+    ports:
+      - "7000:80"
+    volumes:
+      - ./html/index_7000.html:/usr/local/apache2/htdocs/index.html
+
+  web_8000:
+    image: httpd
+    container_name: web_8000
+    ports:
+      - "8000:80"
+    volumes:
+      - ./html/index_8000.html:/usr/local/apache2/htdocs/index.htm
+
+
+
+docker-compose up -d
+curl
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+..........................................................................................................
+create database using mysql
+
+1) sudo nano test.py 
+
+
+import mysql.connector
+import os
+
+# Fetch the MySQL connection details from environment variables
+host = os.environ.get("MYSQL_HOST", "mysql")
+user = os.environ.get("MYSQL_USER", "root")
+passwd = os.environ.get("MYSQL_PASSWORD", "password")
+database = os.environ.get("MYSQL_DATABASE", "sample")
+
+try:
+    # Connect to the MySQL database
+    mydb = mysql.connector.connect(
+        host=host,
+        user=user,
+        passwd=passwd,
+        database=database
+    )
+    print(f"Connected to {database} database successfully.")
+
+    # Create a cursor to interact with MySQL
+    testcursor = mydb.cursor()
+
+    # Create a new database (if it doesn't exist)
+    testcursor.execute(f"CREATE DATABASE IF NOT EXISTS {database}")
+    print(f"Database '{database}' created successfully.")
+
+    # Create a table
+    testcursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            first_name VARCHAR(30),
+            last_name VARCHAR(30),
+            email VARCHAR(50)
+        )
+    """)
+    print("Table 'users' created successfully.")
+
+    # Show tables
+    testcursor.execute("SHOW TABLES")
+    for table in testcursor:
+        print(table)
+
+except mysql.connector.Error as err:
+    print(f"Error: {err}")
+finally:
+    if 'mydb' in locals() and mydb.is_connected():
+        mydb.close()
+
+
+
+2) sudo nano Dockerfile
+# Use the official Python image as a base image
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the test.py script into the container
+COPY test.py /app/test.py
+
+# Install the MySQL connector library
+RUN pip install mysql-connector-python
+
+# Set the default command to run the Python script
+CMD [ "python", "test.py" ]
+
+3)docker build -t python-mysql-app .
+4)docker network create app2
+5)docker run -d --name mysql --network app2 -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=sample mysql:8.0
+6)docker run --rm --name pyth-sql --network app2 -e MYSQL_HOST=mysql -e MYSQL_USER=root -e MYSQL_PASSWORD=password -e MYSQL_DATABASE=sample python-mysql-app
+7)docker exec -it mysql /bin/bash
+8)mysql -u root -p
+9)SHOW DATABASES;
+10)USE sample
+11)SHOW TABLES;
+12)EXIT;
+
+.....................................................................................................
+
+
+Create a python program that takes 2 numbers from the user and displays addition and multiplication result. Now create an image of this program. Run the container from this image and display the results.
+
+.......................................
+
+app.py
+
+
+# Take two numbers from the user
+num1 = float(input("Enter the first number: "))
+num2 = float(input("Enter the second number: "))
+
+# Perform addition and multiplication
+addition = num1 + num2
+multiplication = num1 * num2
+
+# Display the results
+print(f"Addition result: {addition}")
+print(f"Multiplication result: {multiplication}
+
+Dockerfile
+
+
+# Use a Python base image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the Python program to the container
+COPY app.py .
+
+# Run the Python program
+CMD ["python3", "app.py"]
+
+
+docker build -t python-calc-app .
+docker run -it python-calc-app
+............................................................................................................
+
+
+
+ On the kubernetes cluster create a deployment using httpd image. Check on which node the
+pod is running. Create a service of type NodePort for this deployment. Check the port assigned
+for this service. Use curl to access website on the specified port on the node address
+
+
+
+1)kubectl create deployment httpd-deployment --image=httpd --port=80
+2)kubectl get pods -o wide
+3)kubectl expose deployment httpd-deployment --type=NodePort --name=httpd-service
+
+4)kubectl get svc httpd-service
+5)kubectl get nodes -o wide
+6)curl http://<NODE_IP>:<NodePort>
+
+
+
+
+if using yaml file
+
+1)sudo nano httpd-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpd
+  template:
+    metadata:
+      labels:
+        app: httpd
+    spec:
+      containers:
+      - name: httpd
+        image: httpd
+        ports:
+        - containerPort: 80
+2)kubectl apply -f httpd-deployment.yaml
+3)httpd-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpd-service
+  lables:
+    app: httpd
+spec:
+  selector:
+    app: httpd
+  ports:
+    - protocol: TCP
+      port: 80        # Port exposed within the cluster
+      targetPort: 80   # Container port
+      nodePort: 30007  # NodePort that will be used to access the service externally
+  type: NodePort
+4)kubectl apply -f httpd-service.yaml
+5)kubectl get svc httpd-service
+6)kubectl get nodes -o wide
+7)curl http://<NODE_IP>:30007
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+email
+1)ash==ashududhal12@gmail.com
+2)Renuka==renukagaidhane24@gmail.com
+3)shweta a==aiwaleshweta7020@gmail.com
+4)shweta j== s.jagdale0604@gmail.com
