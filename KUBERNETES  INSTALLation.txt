@@ -1,0 +1,109 @@
+#######KUBERNETES COMMON INSTALL MASTER##
+su -u
+password=root
+sudo visudo
+dhpcsa ALL=(ALL) ALL
+sudo yum update -y
+
+1) echo "######### This script will install Kubernetes #############
+echo "#### Common Installation script ######"
+echo "##### Execute on Manager and worker nodes also ####"
+sleep 5 
+###Enable br_netfilter kernel module
+sudo nano /etc/modules-load.d/containerd.conf <<EOF
+overlay
+br_netfilter
+EOF
+
+1.sudo modprobe overlay
+2.sudo modprobe br_netfilter
+3.sudo nano /etc/sysctl.d/k8s.conf
+  cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+  net.bridge.bridge-nf-call-iptables  = 1
+  net.ipv4.ip_forward = 1
+  net.bridge.bridge-nf-call-ip6tables = 1
+   EOF
+
+4.sudo sysctl --system
+5.cat /proc/sys/net/ipv4/ip_forword
+6.sudo swapoff -a
+7.sudo nano /etc/fstab
+   last line*enter
+8.sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+10.sudo yum install containerd.io -y
+11.sudo containerd config default
+12.sudo nano /etc/containerd/config.toml
+   |_edit file system Cgroup=true
+13.sudo systemctl restart containerd
+14.sudo systemctl enable containerd
+15.sudo systemctl status containerd
+
+###Add kubernetes repository
+ 16.sudo nano /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://pkgs.k8s.io/core:/stable:/v1.29/rpm/
+enabled=1
+gpgcheck=1
+gpgkey=https://pkgs.k8s.io/core:/stable:/v1.29/rpm/repodata/repomd.xml.key
+exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+
+
+17.sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+
+##start and enable kubelet service
+
+18.sudo systemctl enable kubelet
+______________common Installation completed successfully______________
+ 
+###then clone node1 node 2
+##########ON MASTER#######################################################################
+1.sudo hostnamectl set-hostname master
+2.sudo visudo
+  dhpcsa ALL=(ALL) ALL
+3.sudo nano /etc/host
+  add ip master node1 node2
+4. Configure following firewall rules 
+sudo firewall-cmd --permanent --add-port={6443,2379,2380,10250,10251,10252,10257,10259,179}/tcp
+sudo firewall-cmd --permanent --add-port=4789/udp
+sudo firewall-cmd --reload
+5.sudo kubeadm init --pod-network-cidr=10.244.0.0/16  --apiserver-advertise-address=master ip
+  copy the join tokenfile create
+6.mkdir .kube
+7.cd .kube
+8.sudo cp  /etc/kubernetes/admin.conf .kube/config
+9.sudo chown dhpcsa:dhpcsa .kube/config
+10.kubectl get nodes
+11.kubectl get pods --all -namespaces
+12.kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+13.chmode +x tokenfile
+14.scp tokenfile node1:/home/dhpcsa
+15.scp tokenfile node2:/home/dhpcsa
+
+  #########ON NODE2#########################
+1.sudo hostnamectl set-hostname node1
+2.sudo visudo
+  dhpcsa ALL=(ALL) ALL
+3.sudo nano /etc/host add ip master node1 node2
+4.sudo firewall-cmd --permanent --add-port={179,10250,30000-32767}/tcp
+sudo firewall-cmd --permanent --add-port=4789/udp
+sudo firewall-cmd --reload
+5.sudo ./tokenfile
+
+
+#########ON NODE2#########################
+
+1.sudo hostnamectl set-hostname node2
+2.sudo visudo
+  dhpcsa ALL=(ALL) ALL
+3.sudo nano /etc/host add ip in it master node1 node 2
+4.sudo firewall-cmd --permanent --add-port={179,10250,30000-32767}/tcp
+sudo firewall-cmd --permanent --add-port=4789/udp
+sudo firewall-cmd --reload
+
+after that nodes are ready
+kubectl get nodes
+
+
+
+
