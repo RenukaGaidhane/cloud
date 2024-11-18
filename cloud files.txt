@@ -279,5 +279,25 @@ email
 3)shweta a==aiwaleshweta7020@gmail.com
 4)shweta j== s.jagdale0604@gmail.com
 
+________________________________________________________________________________________________________________
+Docker hub push
+ mkdir ashu
+   cd ashu
+   nano add.py
+   nano Dockerfile
+          cat Dockerfile
+FROM ubuntu
+RUN apt update -y
+RUN apt install python3 -y
+RUN mkdir /prog
+COPY add.py /prog
+CMD [ "python3", "prog" ]
+  
+sudo docker build -t yash .
+  sudo docker tag yash aishwarya1299/add:v1
+   sudo docker push aishwarya1299/add:v1
+  sudo docker login
+   sudo docker push aishwarya1299/add:v1
+  
 
 
