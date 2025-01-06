@@ -1,0 +1,54 @@
+# Install Podman if not installed (you already have it installed)
+sudo yum install podman -y
+
+# Start Podman service
+sudo systemctl start podman
+
+# Enable Podman to start on boot
+sudo systemctl enable podman
+
+# Verify Java version
+java -version
+
+# Install Java if it's not installed (you already have it installed)
+sudo yum install java-17-openjdk
+
+# Create a directory for your project and clone the Git repository
+sudo mkdir /cdac_jenkins
+cd /cdac_jenkins
+sudo git clone https://github.com/Amitpotdar431401/cdac_jenkins.git
+
+# Navigate to the repository directory
+cd cdac_jenkins
+
+# Create or edit Dockerfile and .gitignore
+sudo nano Dockerfile
+sudo nano .gitignore
+
+# Check Git status
+sudo git status
+
+# Add changes to Git
+sudo git add -A
+
+# Commit changes
+sudo git commit -m ".gitignore"
+
+# Check the Git log
+sudo git log
+
+# Pull latest changes from the repository
+sudo git pull
+
+# Build Docker image from the Dockerfile
+sudo docker build -t cdac-app .
+
+# Check available Docker images
+sudo docker images
+
+# Run the Docker container
+sudo docker run --name app123 -d -p 80:80 cdac-app
+
+# Change ownership of the project directory to jenkins user
+sudo chown -R jenkins /cdac_jenkins/cdac_jenkins/
+

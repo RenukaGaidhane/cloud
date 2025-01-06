@@ -1,0 +1,97 @@
+1.copy container and vice versa
+
+nano hello.html
+sudo docker images 
+sudo docker pull ubuntu
+sudo chown -R dhpcsa /var/run/docker.sock 
+sudo docker pull httpd
+sudo docker pull centos
+sudo docker run --name u1 ubuntu 
+sudo docker run --name u1 -ti ubuntu 
+sudo docker stop u1
+sudo docker rm u1
+sudo docker run --name u1 -ti ubuntu 
+apt update
+
+in container
+mkidr ubuntu ->in home folder
+
+docker cp 1.html u1:/home/ubuntu/demo/
+
+delete it form local
+rm 1.html 
+
+docker cp u1:/home/ubuntu/demo/1.html . 
+
+
+2.adding and removing network
+
+docker network ls 
+docker network inspect bridge
+docker network create hpcsa
+docker network inspect hpcsa
+
+docker run --name hpc1 --network hpcsa -ti ubuntu 
+
+
+docker network ls
+docker inspect hpc1
+
+docker ps 
+docker network connect hpcsa u1 
+
+docker inspect u1 
+
+docker network inspect hpcsa
+docker network disconnect hpcsa hpc1 
+docker network inspect hpcsa
+
+3.
+
+sudo docker run --name u2 --network hpcsa -ti ubuntu 
+sudo docker network inspect hpcsa
+docker images 
+
+
+
+/*from local 
+docker cp u1:/home/ubuntu/demo/1.html u2:/home/ubuntu/demo*/
+
+docker run --name webserver --network hpcsa -d -p 8000:80 httpd
+docker ps
+docker inspect webserver | grep IP 
+
+
+from u1:
+apt install curl 
+
+curl http://172.18.0.4 
+curl http://webserver
+
+form local ip it work but hostname not work 
+
+
+
+4.
+docker pull mysql
+
+http->80
+mysql->3306
+
+docker search mysql -> listing images form docker hub
+sudo docker run --name cdacmysql --network hpcsa -d -e MYSQL_ROOT_PASSWORD=password mysql 
+sudo docker inspect cdac mysql
+
+
+from u1 or u2
+apt install python3 
+apt install python3-pip 
+pip3 install mysql-connector-python[telemetry] --break-system-packages
+
+
+
+
+
+
+
+

@@ -1,0 +1,50 @@
+create a httpd pod using yaml file
+create a service nodeport using yaml file 
+access default httpd webpage from host machine
+
+
+
+
+[dhpcsa@master ~]$ kubectl get pod  -o wide
+NAME        READY   STATUS    RESTARTS   AGE   IP           NODE   NOMINATED NODE   READINESS GATES
+httpd-pod   1/1     Running   0          64s   10.244.1.7   dn1    <none>           <none>
+[dhpcsa@master ~]$ curl dn1:30080
+<html><body><h1>It works!</h1></body></html>
+[dhpcsa@master ~]$ cat httpd-pod.yaml 
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: httpd-pod
+  labels:
+    app: httpd
+spec:      
+  containers:
+  - name: httpd
+    image: httpd:latest
+    ports:
+    - containerPort: 80
+
+
+[dhpcsa@master ~]$ cat httpd-service.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpd-pod
+spec:
+  selector:
+    app: httpd
+  ports:
+    - protocol: TCP
+      port: 80        # Port inside the cluster
+      targetPort: 80   # Port exposed by the container
+      nodePort: 30080  # Port on each Node to access the service
+  type: NodePort
+[dhpcsa@master ~]$ kubectl apply -f httpd-pod.yaml   
+pod/httpd-pod unchanged
+[dhpcsa@master ~]$ kubectl apply -f httpd-service.yaml 
+service/httpd-pod unchanged
+[dhpcsa@master ~]$ 
+[dhpcsa@master ~]$ curl dn1:30080
+<html><body><h1>It works!</h1></body></html>
+[dhpcsa@master ~]$ 

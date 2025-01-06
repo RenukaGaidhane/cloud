@@ -1,0 +1,26 @@
+sudo apt-get install docker.io
+sudo systemctl start docker
+sudo docker images
+sudo docker ps ->currently running docker
+sudo docker ps -a ->showing all container with running and stop 
+sudo docker pull ubuntu:latest
+sudo docker pull httpd:latest
+sudo docker rm  containerid
+sudo docker run -it ubuntu:latest ->i interactive t terminal 
+sudo docker start containerid ->start a existing container which have a stop
+sudo docker attach containerid ->access a shell which container have running
+sudo docker exec containerid command->run command in running container
+sudo docker exec containerid sudo apt-get install python3 -y
+docker commit <container_id> <new_image_name> ->to save the updated image file
+sudo docker run --name p1 ubuntu 
+sudo docker run --name p1 -ti ubuntu 
+sudo docker run --name p1 -ti ubuntu python3
+
+docker inspect web1-> to show the container information
+
+sudo docker run --name web1 -d -p 8000:80 httpd-> to run container in background -d detached mode -p port aping
+
+
+sudo firewall-cmd --add-port=8000/tcp
+
+iptables -A INPUT -p tcp -dport
